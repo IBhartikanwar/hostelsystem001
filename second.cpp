@@ -58,6 +58,19 @@ public:
     void getDetails() override {
         student::getDetails();
         cout << "Scholarship is 15%\n";
+
+        // Save VIP student info to file
+        ofstream fout("bookings.txt", ios::app);
+        if (!fout) {
+            cout << "Error opening file for writing!\n";
+            return;
+        }
+        fout << "==== VIP STUDENT RECORD ====\n";
+        fout << "Name: " << name << endl;
+        fout << "Phone: " << phone << endl;
+        fout << "Scholarship: 15%" << endl;
+        fout << "============================\n\n";
+        fout.close();
     }
     void showDetails() const override {
         cout << "VIP Name: " << name << " | Phone: " << phone
@@ -100,9 +113,22 @@ public:
         cin >> year;
         totalBill = pricePeryear * year;
 
+        // Save full booking details to file
         ofstream fout("bookings.txt", ios::app);
-        fout << name << " " << phone << " " << roomNo << " " << type << " "
-             << year << " " << totalBill << endl;
+        if (!fout) {
+            cout << "Error opening file for writing!\n";
+            return;
+        }
+
+        fout << "==== BOOKING RECORD ====\n";
+        fout << "Name: " << name << endl;
+        fout << "Phone: " << phone << endl;
+        fout << "Room No: " << roomNo << endl;
+        fout << "Room Type: " << type << endl;
+        fout << "Price per Year: ₹" << pricePeryear << endl;
+        fout << "Years: " << year << endl;
+        fout << "Total Bill: ₹" << totalBill << endl;
+        fout << "=========================\n\n";
         fout.close();
 
         cout << "\nStudent Booking Saved Successfully!\n";
@@ -204,7 +230,8 @@ int main() {
         cout << "\n5. Show HOSTEL DETAILS";
         cout << "\n6. Show Total Bill (This Session)";
         cout << "\n7. Show Wardens";
-        cout << "\n8. Exit\nEnter Choice: ";
+        cout << "\n8. Exit";
+        cout << "\n9. View All Saved Bookings\nEnter Choice: ";
 
         cin >> ch;
 
@@ -220,7 +247,7 @@ int main() {
             b1.makeBooking();
             if (bookingCount < 10) {
                 sessionBookings[bookingCount++] = b1;
-                sessionTotalBill += b1.getTotalBill(); // total of the bill students logged
+                sessionTotalBill += b1.getTotalBill(); 
                 bill.setAmount(sessionTotalBill);      
             } else {
                 cout << "Maximum session bookings reached!\n";
@@ -267,17 +294,38 @@ int main() {
             hostelWardens.showItems();
             break;
 
-        case 8:
-            cout << "\nGoodbye!\n";
+        case 8: {
+            // Save session summary before exit
+            ofstream fout("bookings.txt", ios::app);
+            fout << "==== SESSION SUMMARY ====\n";
+            fout << "Total Bookings in Session: " << bookingCount << endl;
+            fout << "Total Bill This Session: ₹" << sessionTotalBill << endl;
+            fout << "==========================\n\n";
+            fout.close();
+
+            cout << "\nSession summary saved. Goodbye!\n";
             break;
+        }
+
+        case 9: {
+            ifstream fin("bookings.txt");
+            if (!fin) {
+                cout << "\nNo booking file found!\n";
+            } else {
+                cout << "\n--- All Saved Bookings ---\n";
+                string line;
+                while (getline(fin, line))
+                    cout << line << endl;
+                fin.close();
+            }
+            break;
+        }
 
         default:
-            cout << "\nInvalid choice! Please select between 1-8.\n";
+            cout << "\nInvalid choice! Please select between 1-9.\n";
         }
 
     } while (ch != 8);
 
     return 0;
 }
-
-
